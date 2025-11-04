@@ -1,16 +1,162 @@
-# React + Vite
+# 🐾 AI Pet Companion App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a full-stack React application for emotional well-being through an interactive virtual pet companion. The app provides a safe space for users to express their feelings, receive empathetic responses, and track their emotional progress over time. The virtual pet reacts to your emotional state and provides support through conversations, mini-games, and care activities.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- 🔐 **User Authentication** - Secure login and registration system with demo credentials.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 💬 **Emotional AI Chat** - Interactive chat interface where the pet responds empathetically to your feelings:
+  - Detects emotional states (happy, sad, anxious, tired)
+  - Provides supportive and understanding responses
+  - Real-time mood-based reactions
 
-## Expanding the ESLint configuration
+- 🐾 **Virtual Pet Companion** - Animated pet that reflects your emotional state:
+  - Three moods: Happy, Neutral, Sad
+  - Visual expressions change based on your well-being
+  - Cute animations and personality
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🏠 **Home Screen** - Main interaction hub:
+  - Daily check-in with streak tracking
+  - Chat with your pet companion
+  - Mini-games for stress relief
+  - Streak counter with fire emoji
+
+- 💝 **Pet Care Screen** - Nurture your virtual pet:
+  - Feed your pet (Berry, Cookie, Energy Drink)
+  - Apply accessories (Bow, Crown, Star)
+  - Track pet stats (Happiness, Fullness, Energy)
+  - Real-time stat updates
+
+- 📊 **Progress Tracking**:
+  - Visual charts showing emotional trends
+  - Daily check-in history
+  - Message count and interaction statistics
+  - Weekly and monthly progress views
+
+- 🎮 **Interactive Elements**:
+  - Smooth animations with Framer Motion
+  - Responsive design for all devices
+  - Beautiful gradient UI with pastel colors
+  - Bottom navigation for easy access
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: shadcn/ui (Radix UI primitives)
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Charts**: Recharts for progress visualization
+- **State Management**: React Hooks (useState, useEffect)
+
+---
+
+## 🎨 Design Features
+
+- **Modern UI/UX**: Gradient backgrounds, glassmorphism effects, smooth transitions
+- **Responsive Layout**: Mobile-first design with bottom navigation
+- **Emotional Design**: Color-coded moods and intuitive interactions
+- **Accessibility**: Semantic HTML and keyboard navigation support
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Ana-Bogdan/pet-app.git
+cd pet-app
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser and navigate to `http://localhost:5173`
+
+### Demo Credentials
+
+- **Username**: `demo`
+- **Password**: `demo123`
+
+---
+
+## 📁 Project Structure
+
+```
+pet-app/
+├── src/
+│   ├── components/
+│   │   ├── HomeScreen.tsx       # Main chat interface
+│   │   ├── LoginScreen.tsx       # Authentication
+│   │   ├── PetCareScreen.tsx     # Pet care & customization
+│   │   ├── ProgressScreen.tsx    # Statistics & charts
+│   │   ├── VirtualPet.tsx        # Animated pet component
+│   │   └── ui/                    # Reusable UI components
+│   ├── App.tsx                   # Main app component
+│   ├── main.tsx                  # Entry point
+│   └── index.css                 # Global styles
+├── public/                       # Static assets
+├── figma/                        # Original design files
+└── package.json
+```
+
+---
+
+## 🎯 Purpose
+
+This project demonstrates modern React development with TypeScript, showcasing:
+- Component-based architecture
+- Type-safe development
+- Responsive design patterns
+- Interactive animations
+- Emotional AI conversation patterns
+- Data visualization
+- User experience design focused on emotional well-being
+
+The app serves as both a portfolio project and a tool for emotional support, combining technical skills with empathetic design.
+
+---
+
+## 🔮 Future Enhancements
+
+- Real backend API integration
+- User persistence and data storage
+- Advanced AI responses using LLM APIs
+- Social features (sharing progress)
+- More mini-games and activities
+- Customizable pet appearances
+- Achievement system
+
+---
+
+## 📝 License
+
+This project is open source and available for educational purposes.
+
+---
+
+## 👤 Author
+
+**Ana-Bogdan**
+
+Built with ❤️ for emotional well-being and mental health support.
