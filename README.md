@@ -36,12 +36,6 @@ This is a full-stack React application for emotional well-being through an inter
   - Message count and interaction statistics
   - Weekly and monthly progress views
 
-- 🎮 **Interactive Elements**:
-  - Smooth animations with Framer Motion
-  - Responsive design for all devices
-  - Beautiful gradient UI with pastel colors
-  - Bottom navigation for easy access
-
 ---
 
 ## 🛠️ Tech Stack
@@ -54,15 +48,6 @@ This is a full-stack React application for emotional well-being through an inter
 - **Icons**: Lucide React
 - **Charts**: Recharts for progress visualization
 - **State Management**: React Hooks (useState, useEffect)
-
----
-
-## 🎨 Design Features
-
-- **Modern UI/UX**: Gradient backgrounds, glassmorphism effects, smooth transitions
-- **Responsive Layout**: Mobile-first design with bottom navigation
-- **Emotional Design**: Color-coded moods and intuitive interactions
-- **Accessibility**: Semantic HTML and keyboard navigation support
 
 ---
 
@@ -136,27 +121,5 @@ This project demonstrates modern React development with TypeScript, showcasing:
 The app serves as both a portfolio project and a tool for emotional support, combining technical skills with empathetic design.
 
 ---
-
-## 🔮 Future Enhancements
-
-- Real backend API integration
-- User persistence and data storage
-- Advanced AI responses using LLM APIs
-- Social features (sharing progress)
-- More mini-games and activities
-- Customizable pet appearances
-- Achievement system
-
----
-
-## 📝 License
-
-This project is open source and available for educational purposes.
-
----
-
-## 👤 Author
-
-**Ana-Bogdan**
 
 Built with ❤️ for emotional well-being and mental health support.
