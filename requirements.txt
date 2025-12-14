@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+torch
+numpy
+transformers
+langchain
+langchain-ollama
+langchain-community

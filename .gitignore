@@ -1,0 +1,10 @@
+# Ignoră mediul virtual
+venv/
+.env
+__pycache__/
+*.pyc
+
+# Ignoră fișierele de sistem
+.DS_Store
+
+MentalBert/model.safetensors
