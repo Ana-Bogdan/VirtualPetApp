@@ -31,7 +31,12 @@ export function HomeScreen({ username }: HomeScreenProps) {
   const [inputValue, setInputValue] = useState('');
   const [streak, setStreak] = useState(7);
   const [petMood, setPetMood] = useState<'happy' | 'neutral' | 'sad'>('happy');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // API endpoint - adjust if your backend runs on a different port
+  const API_BASE_URL = 'http://localhost:8000';
+  const PET_NAME = 'Nori'; // Default pet name, can be made configurable later
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,80 +46,76 @@ export function HomeScreen({ username }: HomeScreenProps) {
     scrollToBottom();
   }, [messages]);
 
-  // Mock AI response generator with emotional intelligence
-  const generatePetResponse = (userMessage: string): { text: string; emotionalState: string } => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Detect emotional state
-    let emotionalState = 'neutral';
-    let response = '';
-
-    if (lowerMessage.includes('sad') || lowerMessage.includes('down') || lowerMessage.includes('depressed')) {
-      emotionalState = 'sad';
-      setPetMood('sad');
-      const responses = [
-        "I'm here for you. That sounds really tough. Would you like to talk about what's making you feel this way? 💙",
-        "I can sense you're going through a hard time. Remember, it's okay to not be okay. I'm here to listen. 🫂",
-        "That sounds challenging. You're brave for sharing this with me. How can I support you right now? 💙",
-      ];
-      response = responses[Math.floor(Math.random() * responses.length)];
-    } else if (lowerMessage.includes('anxious') || lowerMessage.includes('worried') || lowerMessage.includes('stressed')) {
-      emotionalState = 'anxious';
-      setPetMood('neutral');
-      const responses = [
-        "I hear you. Anxiety can feel overwhelming. Let's take a deep breath together. What's on your mind? 🌸",
-        "That sounds stressful. Remember to breathe. Would you like to try a calming mini-game with me? 🌿",
-        "I understand. When I feel anxious, I focus on the present moment. What's one thing you can see right now? 💚",
-      ];
-      response = responses[Math.floor(Math.random() * responses.length)];
-    } else if (lowerMessage.includes('happy') || lowerMessage.includes('good') || lowerMessage.includes('great') || lowerMessage.includes('excited')) {
-      emotionalState = 'happy';
-      setPetMood('happy');
-      const responses = [
-        "Yay! Your happiness makes me so happy too! Tell me more about what's making you feel good! ✨",
-        "That's wonderful! I love seeing you this happy! Keep that positive energy going! 🌟",
-        "Amazing! Your smile brightens my day! What happened that made you feel this way? 💖",
-      ];
-      response = responses[Math.floor(Math.random() * responses.length)];
-    } else if (lowerMessage.includes('tired') || lowerMessage.includes('exhausted')) {
-      emotionalState = 'tired';
-      setPetMood('neutral');
-      const responses = [
-        "Rest is important. Make sure you're taking care of yourself. Have you been getting enough sleep? 😴",
-        "Being tired is your body's way of asking for care. Maybe it's time for a break? 💜",
-      ];
-      response = responses[Math.floor(Math.random() * responses.length)];
-    } else {
-      setPetMood('happy');
-      const responses = [
-        "Thank you for sharing that with me. How did that make you feel? 💭",
-        "I'm listening. Tell me more about what's on your mind. 🌸",
-        "That's interesting! I'd love to hear more about your day. 💜",
-        "I appreciate you opening up to me. What else would you like to talk about? ✨",
-      ];
-      response = responses[Math.floor(Math.random() * responses.length)];
-    }
-
-    return { text: response, emotionalState };
+  // Map vibe_score to pet mood
+  const getMoodFromVibeScore = (vibeScore: number): 'happy' | 'neutral' | 'sad' => {
+    if (vibeScore > 0.3) return 'happy';
+    if (vibeScore < -0.3) return 'sad';
+    return 'neutral';
   };
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  // Call backend API to get pet response
+  const getPetResponse = async (userMessage: string): Promise<{ text: string; emotionalState: string; vibeScore: number }> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: username, // Using username as user_id
+          message: userMessage,
+          user_name: username,
+          pet_name: PET_NAME,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Update pet mood based on vibe_score
+      const mood = getMoodFromVibeScore(data.vibe_score);
+      setPetMood(mood);
+
+      return {
+        text: data.reply,
+        emotionalState: data.detected_emotion || 'neutral',
+        vibeScore: data.vibe_score,
+      };
+    } catch (error) {
+      console.error('Error calling API:', error);
+      // Fallback response if API fails
+      return {
+        text: "I'm having trouble connecting right now, but I'm still here for you! 💜 Could you try again?",
+        emotionalState: 'neutral',
+        vibeScore: 0,
+      };
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessageText = inputValue.trim();
+    setInputValue('');
+    setIsLoading(true);
 
     // Add user message
     const userMessage: Message = {
       id: messages.length + 1,
-      text: inputValue,
+      text: userMessageText,
       sender: 'user',
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
 
-    // Generate pet response
-    const { text: responseText, emotionalState } = generatePetResponse(inputValue);
+    try {
+      // Get pet response from API
+      const { text: responseText, emotionalState } = await getPetResponse(userMessageText);
 
-    setTimeout(() => {
       const petMessage: Message = {
         id: messages.length + 2,
         text: responseText,
@@ -123,9 +124,19 @@ export function HomeScreen({ username }: HomeScreenProps) {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, petMessage]);
-    }, 800);
-
-    setInputValue('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Show error message to user
+      const errorMessage: Message = {
+        id: messages.length + 2,
+        text: "Sorry, I'm having trouble connecting. Please make sure the backend server is running! 💜",
+        sender: 'pet',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -235,14 +246,24 @@ export function HomeScreen({ username }: HomeScreenProps) {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="How are you feeling today?"
-              className="flex-1 border-purple-200 focus:border-purple-400"
+              placeholder={isLoading ? "Thinking..." : "How are you feeling today?"}
+              disabled={isLoading}
+              className="flex-1 border-purple-200 focus:border-purple-400 disabled:opacity-50"
             />
             <Button
               onClick={handleSendMessage}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              disabled={isLoading || !inputValue.trim()}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send className="w-4 h-4" />
+              {isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </Button>
           </div>
           <p className="text-xs text-gray-500 mt-2 text-center">

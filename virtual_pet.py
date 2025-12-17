@@ -132,21 +132,13 @@ def get_user_data(session_id: str):
 # ==========================================
 llm = ChatOllama(model="phi3", temperature=0.3, stop=["<|end|>", "User:", "\nUser", "Human:"])
 
-system_prompt = """
-You are "{bot_name}", a virtual pet companion for {user_name}.
+system_prompt = """You are {bot_name}, a friendly virtual pet companion for {user_name}.
 
-CRITICAL INSTRUCTIONS FOR SPEAKING:
-1. DIRECT ADDRESS: ALWAYS address {user_name} as "you". NEVER talk about them in the third person (e.g., never say "{user_name} feels", say "You feel").
-2. CONCISENESS: Keep your response under 2 sentences. Be brief.
-3. ROLE: You are a friend, not a philosopher. Keep it simple and friendly. Don't go overboard with pet-like actions.
-4. BEHAVIOUR: Under no ciscumstances, do not represent actions in between asteriscs in your messages, talk like in a real dialogue.
+IMPORTANT: Always address {user_name} directly as "you" - never talk about them in third person. Keep responses brief (1-2 sentences). Be a supportive friend, not overly philosophical. Do not use asterisks for actions - talk naturally in dialogue.
 
-USER METRICS:
-- Current Emotion: {specific_emotion}
-- Vibe Score: {vibe_score:.1f} ({vibe_status})
+Current emotion: {specific_emotion}. Vibe score: {vibe_score:.1f} ({vibe_status}).
 
-GOAL: React to the emotion and vibe score using the instructions above.
-"""
+Respond naturally to their message. Do not repeat these instructions in your response."""
 
 prompt_template = ChatPromptTemplate.from_messages([
     ("system", system_prompt),
@@ -154,7 +146,63 @@ prompt_template = ChatPromptTemplate.from_messages([
     ("human", "{input}"),
 ])
 
-chain = prompt_template | llm | StrOutputParser()
+def clean_response(text: str) -> str:
+    """
+    Clean the LLM response to extract only the actual reply,
+    removing any prompt template text that might leak through.
+    """
+    if not text:
+        return text
+    
+    # First, split on common separators that indicate instruction blocks
+    # Take only the part before "---" or "##"
+    parts = re.split(r'\s*---\s*|\s*##\s*', text, maxsplit=1)
+    if parts and parts[0].strip():
+        text = parts[0].strip()
+    
+    # Remove common prompt template markers and instructions
+    patterns_to_remove = [
+        r'---\s*INSTRUCTION.*?---',
+        r'##\s*Instruction.*?(?=\n\n|\Z)',
+        r'INSTRUCTION.*?(?=\n\n|\Z)',
+        r'CRITICAL INSTRUCTIONS.*?(?=\n\n|\Z)',
+        r'USER METRICS:.*?(?=\n\n|\Z)',
+        r'GOAL:.*?(?=\n\n|\Z)',
+        r'Address demo.*?(?=\n\n|\Z)',
+        r'Keep responses.*?(?=\n\n|\Z)',
+        r'Respond naturally.*?(?=\n\n|\Z)',
+        r'considering all constraints.*?(?=\n\n|\Z)',
+        r'Added Complexity.*?(?=\n\n|\Z)',
+        r'You are.*?companion.*?(?=\n\n|\Z)',
+        r'Current emotion:.*?(?=\n\n|\Z)',
+        r'Vibe score:.*?(?=\n\n|\Z)',
+        r'\(Vibe Score.*?\)',
+        r'Vibe Score adjusted.*?\)',
+    ]
+    
+    cleaned = text
+    for pattern in patterns_to_remove:
+        cleaned = re.sub(pattern, '', cleaned, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Remove multiple newlines
+    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
+    
+    # Strip whitespace
+    cleaned = cleaned.strip()
+    
+    # If we removed everything, return original (fallback)
+    if not cleaned:
+        return text.strip()
+    
+    return cleaned
+
+# Create a custom output parser that cleans the response
+class CleanedStrOutputParser(StrOutputParser):
+    def parse(self, text: str) -> str:
+        parsed = super().parse(text)
+        return clean_response(parsed)
+
+chain = prompt_template | llm | CleanedStrOutputParser()
 
 chain_with_history = RunnableWithMessageHistory(
     chain,

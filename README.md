@@ -9,22 +9,26 @@ This is a full-stack application for emotional well-being through an interactive
 - 🔐 **User Authentication** - Secure login and registration system with demo credentials.
 
 - 💬 **Emotional AI Chat** - Interactive chat interface where the pet responds empathetically to your feelings:
+
   - Detects emotional states (happy, sad, anxious, tired)
   - Provides supportive and understanding responses
   - Real-time mood-based reactions
 
 - 🐾 **Virtual Pet Companion** - Animated pet that reflects your emotional state:
+
   - Three moods: Happy, Neutral, Sad
   - Visual expressions change based on your well-being
   - Cute animations and personality
 
 - 🏠 **Home Screen** - Main interaction hub:
+
   - Daily check-in with streak tracking
   - Chat with your pet companion
   - Mini-games for stress relief
   - Streak counter with fire emoji
 
 - 💝 **Pet Care Screen** - Nurture your virtual pet:
+
   - Feed your pet (Berry, Cookie, Energy Drink)
   - Apply accessories (Bow, Crown, Star)
   - Track pet stats (Happiness, Fullness, Energy)
@@ -41,6 +45,7 @@ This is a full-stack application for emotional well-being through an interactive
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS with custom design system
@@ -51,6 +56,7 @@ This is a full-stack application for emotional well-being through an interactive
 - **State Management**: React Hooks (useState, useEffect)
 
 ### Backend
+
 - **Framework**: FastAPI (Python)
 - **LLM**: Phi-3 via Ollama for empathetic chatbot responses
 - **Emotion Detection**: Custom-trained MentalBERT model for fine-grained emotion detection (28 emotions)
@@ -68,17 +74,20 @@ This is a full-stack application for emotional well-being through an interactive
 ### Frontend Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Ana-Bogdan/VirtualPetApp.git
 cd VirtualPetApp
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -88,26 +97,30 @@ npm run dev
 ### Backend Installation
 
 1. **Configure MentalBERT Model**:
+
    - Ensure the `MentalBert` folder contains `model.safetensors`
    - If missing, download from: https://drive.google.com/file/d/172K6ha3m0keAS3pKsKqiauw6a7e5ddiH/view?usp=drive_link
 
 2. **Create Virtual Environment**:
+
    ```bash
    # Windows
    python -m venv venv
    .\venv\Scripts\activate
-   
+
    # Mac/Linux
    python3 -m venv venv
    source venv/bin/activate
    ```
 
 3. **Install Dependencies**:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Setup Ollama**:
+
    - Install Ollama if not already installed
    - In a separate terminal, pull the phi3 model:
      ```bash
@@ -116,10 +129,11 @@ npm run dev
    - Keep Ollama running in the background
 
 5. **Start the Backend Server**:
+
    ```bash
    python server.py
    ```
-   
+
    You should see: `INFO: Uvicorn running on http://0.0.0.0:8000`
 
 ### Demo Credentials
@@ -138,6 +152,7 @@ The backend server runs locally at `http://127.0.0.1:8000`.
 **POST** `/chat`
 
 Request body:
+
 ```json
 {
   "user_id": "test_user",
@@ -177,6 +192,7 @@ VirtualPetApp/
 ## 🎯 Purpose
 
 This project demonstrates modern full-stack development, showcasing:
+
 - Component-based React architecture with TypeScript
 - FastAPI backend with AI/ML integration
 - Emotion detection using custom-trained models
