@@ -6,3 +6,5 @@ transformers
 langchain
 langchain-ollama
 langchain-community
+sqlalchemy
+aiosqlite

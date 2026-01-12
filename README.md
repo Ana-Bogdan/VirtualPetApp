@@ -60,7 +60,8 @@ This is a full-stack application for emotional well-being through an interactive
 - **Framework**: FastAPI (Python)
 - **LLM**: Phi-3 via Ollama for empathetic chatbot responses
 - **Emotion Detection**: Custom-trained MentalBERT model for fine-grained emotion detection (28 emotions)
-- **Memory**: Conversation and emotional state tracking
+- **Database**: SQLite with SQLAlchemy for persistent conversation storage
+- **Memory**: Conversation and emotional state tracking with persistent history
 
 ---
 
@@ -119,6 +120,8 @@ npm run dev
    pip install -r requirements.txt
    ```
 
+   This will install all required packages including database dependencies (SQLAlchemy, aiosqlite).
+
 4. **Setup Ollama**:
 
    - Install Ollama if not already installed
@@ -162,6 +165,91 @@ Request body:
 }
 ```
 
+### Conversation History Endpoint
+
+**GET** `/conversation/{user_id}`
+
+Returns conversation history for a specific user, including all past messages and user profile information.
+
+---
+
+## 💾 Database
+
+The app uses SQLite to persist all conversations and user data. The database file (`virtual_pet.db`) is automatically created when you first run the backend server.
+
+### Accessing the Database
+
+**Option 1: Using the View Script (Recommended)**
+
+```bash
+# View all database contents
+python view_db.py
+
+# View a specific user's conversation
+python view_db.py demo
+```
+
+**Option 2: Using SQLite Command Line**
+
+```bash
+sqlite3 virtual_pet.db
+.tables                    # List all tables
+SELECT * FROM users;      # View all users
+SELECT * FROM messages;     # View all messages
+.quit                      # Exit
+```
+
+**Option 3: Using GUI Tools**
+
+- **DB Browser for SQLite** (Free): https://sqlitebrowser.org/
+- **TablePlus** (Mac/Windows): https://tableplus.com/
+- **DBeaver** (Free, cross-platform): https://dbeaver.io/
+
+### Database Structure
+
+- **users** - User profiles (user_id, user_name, pet_name, vibe_score)
+- **conversations** - Chat sessions linked to users
+- **messages** - Individual messages with timestamps and detected emotions
+
+### Data Persistence
+
+- ✅ All conversations are automatically saved to the database
+- ✅ Data persists after closing the app
+- ✅ Previous conversations load automatically when you log in
+- ✅ Each user has their own conversation history
+- ✅ Database file is in `.gitignore` (not committed to git)
+
+### Security Notes
+
+**Current Setup (Local Development):**
+- Each user has their own local database file
+- Data is private to each user
+- No shared data between users
+- Perfect for development and personal use
+
+**For Production Deployment:**
+- ⚠️ SQLite is NOT suitable for production with multiple concurrent users
+- ✅ Use PostgreSQL or MySQL with proper authentication
+- ✅ Implement user authentication (JWT tokens, sessions)
+- ✅ Add API authentication middleware
+- ✅ Use environment variables for database credentials
+
+### Quick Database Commands
+
+```bash
+# View database
+python view_db.py
+
+# View specific user
+python view_db.py demo
+
+# Backup database
+cp virtual_pet.db virtual_pet.db.backup
+
+# Delete database (starts fresh)
+rm virtual_pet.db
+```
+
 ---
 
 ## 📁 Project Structure
@@ -182,6 +270,9 @@ VirtualPetApp/
 ├── MentalBert/                    # Emotion detection model files
 ├── server.py                      # FastAPI backend server
 ├── virtual_pet.py                 # Virtual pet logic
+├── database.py                    # Database models and utilities
+├── view_db.py                     # Database viewer script
+├── virtual_pet.db                 # SQLite database (auto-created)
 ├── simulare.py                    # Simulation/testing utilities
 ├── requirements.txt               # Python dependencies
 └── package.json                   # Node.js dependencies

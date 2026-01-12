@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
-import { Send, Flame, Gamepad2, Sparkles } from 'lucide-react';
+import { Send, Flame, Wind, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Message {
@@ -17,21 +17,16 @@ interface Message {
 
 interface HomeScreenProps {
   username: string;
+  onOpenBreathingExercises?: () => void;
 }
 
-export function HomeScreen({ username }: HomeScreenProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: `Hi ${username}! I'm so happy to see you today! 💜 How are you feeling?`,
-      sender: 'pet',
-      timestamp: new Date(),
-    },
-  ]);
+export function HomeScreen({ username, onOpenBreathingExercises }: HomeScreenProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [streak, setStreak] = useState(7);
   const [petMood, setPetMood] = useState<'happy' | 'neutral' | 'sad'>('happy');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // API endpoint - adjust if your backend runs on a different port
@@ -46,10 +41,72 @@ export function HomeScreen({ username }: HomeScreenProps) {
     scrollToBottom();
   }, [messages]);
 
-  // Map vibe_score to pet mood
+  // Load conversation history on mount
+  useEffect(() => {
+    const loadConversationHistory = async () => {
+      try {
+        setIsLoadingHistory(true);
+        const response = await fetch(`${API_BASE_URL}/conversation/${username}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.messages && data.messages.length > 0) {
+            // Convert database messages to Message format
+            const loadedMessages: Message[] = data.messages.map((msg: any, index: number) => ({
+              id: msg.id || index + 1,
+              text: msg.text,
+              sender: msg.sender as 'user' | 'pet',
+              emotionalState: msg.emotionalState,
+              timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+            }));
+            
+            setMessages(loadedMessages);
+            
+            // Update pet mood based on last vibe score if available
+            if (data.user_profile?.vibe_score !== undefined) {
+              const mood = getMoodFromVibeScore(data.user_profile.vibe_score);
+              setPetMood(mood);
+            }
+          } else {
+            // No history, show welcome message
+            setMessages([{
+              id: 1,
+              text: `Hi ${username}! I'm so happy to see you today! 💜 How are you feeling?`,
+              sender: 'pet',
+              timestamp: new Date(),
+            }]);
+          }
+        } else {
+          // If API fails, show welcome message
+          setMessages([{
+            id: 1,
+            text: `Hi ${username}! I'm so happy to see you today! 💜 How are you feeling?`,
+            sender: 'pet',
+            timestamp: new Date(),
+          }]);
+        }
+      } catch (error) {
+        console.error('Error loading conversation history:', error);
+        // On error, show welcome message
+        setMessages([{
+          id: 1,
+          text: `Hi ${username}! I'm so happy to see you today! 💜 How are you feeling?`,
+          sender: 'pet',
+          timestamp: new Date(),
+        }]);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadConversationHistory();
+  }, [username]);
+
+  // Map vibe_score to pet mood (vibe_score is 0-100 scale)
   const getMoodFromVibeScore = (vibeScore: number): 'happy' | 'neutral' | 'sad' => {
-    if (vibeScore > 0.3) return 'happy';
-    if (vibeScore < -0.3) return 'sad';
+    if (vibeScore >= 60) return 'happy';
+    if (vibeScore < 40) return 'sad';
     return 'neutral';
   };
 
@@ -157,14 +214,17 @@ export function HomeScreen({ username }: HomeScreenProps) {
     setMessages((prev) => [...prev, congratsMessage]);
   };
 
-  const openMiniGame = () => {
-    const gameMessage: Message = {
+  const openBreathingExercises = () => {
+    if (onOpenBreathingExercises) {
+      onOpenBreathingExercises();
+    }
+    const breathingMessage: Message = {
       id: messages.length + 1,
-      text: "Let's play! Mini-games help reduce stress. How about a quick breathing exercise? Inhale... Exhale... 🌸",
+      text: "Great choice! Breathing exercises can help you feel more calm and centered. Let's take a moment to breathe together 🌸",
       sender: 'pet',
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, gameMessage]);
+    setMessages((prev) => [...prev, breathingMessage]);
   };
 
   return (
@@ -189,14 +249,14 @@ export function HomeScreen({ username }: HomeScreenProps) {
           </motion.div>
         </div>
 
-        {/* Mini-games button */}
+        {/* Breathing Exercises button */}
         <Button
-          onClick={openMiniGame}
+          onClick={openBreathingExercises}
           variant="outline"
           className="w-full mb-4 border-purple-200 text-purple-600 hover:bg-purple-50"
         >
-          <Gamepad2 className="w-4 h-4 mr-2" />
-          Play Mini-Game
+          <Wind className="w-4 h-4 mr-2" />
+          Breathing Exercises
           <Sparkles className="w-4 h-4 ml-2" />
         </Button>
       </div>
@@ -210,8 +270,13 @@ export function HomeScreen({ username }: HomeScreenProps) {
       <Card className="bg-white/80 backdrop-blur-sm border-purple-100 shadow-lg">
         {/* Messages */}
         <div className="h-[300px] overflow-y-auto p-4 space-y-3">
-          <AnimatePresence>
-            {messages.map((message) => (
+          {isLoadingHistory ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-gray-500">Loading conversation history...</div>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {messages.map((message) => (
               <motion.div
                 key={message.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -234,8 +299,9 @@ export function HomeScreen({ username }: HomeScreenProps) {
                   )}
                 </div>
               </motion.div>
-            ))}
-          </AnimatePresence>
+              ))}
+            </AnimatePresence>
+          )}
           <div ref={messagesEndRef} />
         </div>
 

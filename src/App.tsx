@@ -3,6 +3,7 @@ import { LoginScreen } from './components/LoginScreen';
 import { HomeScreen } from './components/HomeScreen';
 import { PetCareScreen } from './components/PetCareScreen';
 import { ProgressScreen } from './components/ProgressScreen';
+import { BreathingExercisesScreen } from './components/BreathingExercisesScreen';
 import { Heart, Home, Package, TrendingUp } from 'lucide-react';
 
 // Mock user database
@@ -12,7 +13,7 @@ const mockUsers = [
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [activeScreen, setActiveScreen] = useState<'home' | 'care' | 'progress'>('home');
+  const [activeScreen, setActiveScreen] = useState<'home' | 'care' | 'progress' | 'breathing'>('home');
 
   const handleLogin = (username: string, password: string) => {
     const user = mockUsers.find(u => u.username === username && u.password === password);
@@ -49,9 +50,17 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Main Content */}
       <div className="pb-20">
-        {activeScreen === 'home' && <HomeScreen username={currentUser.username} />}
+        {activeScreen === 'home' && (
+          <HomeScreen 
+            username={currentUser.username} 
+            onOpenBreathingExercises={() => setActiveScreen('breathing')}
+          />
+        )}
         {activeScreen === 'care' && <PetCareScreen />}
         {activeScreen === 'progress' && <ProgressScreen username={currentUser.username} />}
+        {activeScreen === 'breathing' && (
+          <BreathingExercisesScreen onBack={() => setActiveScreen('home')} />
+        )}
       </div>
 
       {/* Bottom Navigation */}
